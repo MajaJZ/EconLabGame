@@ -216,41 +216,41 @@ def generate_narrative(res, approval_change):
     
     # GDP Growth narrative
     if res["gdp_growth"] > 4.0:
-        narrative.append("📈 Your economy is booming! Businesses are expanding and new jobs are everywhere.")
+        narrative.append("Your economy is booming! Businesses are expanding and new jobs are everywhere.")
     elif res["gdp_growth"] > 2.0:
-        narrative.append("✅ The economy is growing steadily. People are cautiously optimistic.")
+        narrative.append("The economy is growing steadily. People are cautiously optimistic.")
     elif res["gdp_growth"] > 0:
-        narrative.append("⚠️ Growth is sluggish. Many families are struggling to make ends meet.")
+        narrative.append("Growth is sluggish. Many families are struggling to make ends meet.")
     else:
-        narrative.append("📉 The economy is shrinking! Protests are breaking out in major cities.")
+        narrative.append("The economy is shrinking! Protests are breaking out in major cities.")
     
     # Inflation narrative
     if res["inflation"] > 8.0:
-        narrative.append("🔥 Inflation is out of control! People rush to buy goods before prices rise again.")
+        narrative.append("Inflation is out of control! People rush to buy goods before prices rise again.")
     elif res["inflation"] > 4.0:
-        narrative.append("💸 Prices are rising quickly. Your citizens are feeling the pinch at the grocery store.")
+        narrative.append("Prices are rising quickly. Your citizens are feeling the pinch at the grocery store.")
     elif res["inflation"] < 1.0:
-        narrative.append("🧊 Inflation is very low. Some economists worry about deflation.")
+        narrative.append("Inflation is very low. Some economists worry about deflation.")
     else:
-        narrative.append("⚖️ Inflation is moderate. The central bank seems satisfied.")
+        narrative.append("Inflation is moderate. The central bank seems satisfied.")
     
     # Unemployment narrative
     if res["unemployment"] < 4.0:
-        narrative.append("👷 Almost everyone who wants a job has one. Employers are competing for workers.")
+        narrative.append("Almost everyone who wants a job has one. Employers are competing for workers.")
     elif res["unemployment"] < 7.0:
-        narrative.append("💼 Unemployment is manageable, but some regions are struggling.")
+        narrative.append("Unemployment is manageable, but some regions are struggling.")
     else:
-        narrative.append("🚫 High unemployment is causing social unrest. Young people are especially affected.")
+        narrative.append("High unemployment is causing social unrest. Young people are especially affected.")
     
     # Approval rating narrative
     if approval_change > 5:
-        narrative.append("🎉 Your approval rating is soaring! You're being called a hero in the newspapers.")
+        narrative.append("Your approval rating is soaring! You're being called a hero in the newspapers.")
     elif approval_change > 0:
-        narrative.append("👍 The public seems pleased with your policies.")
+        narrative.append("The public seems pleased with your policies.")
     elif approval_change > -5:
-        narrative.append("👎 Some voters are unhappy. Opposition parties are gaining support.")
+        narrative.append("Some voters are unhappy. Opposition parties are gaining support.")
     else:
-        narrative.append("😡 Your approval rating is plummeting! Protests are growing outside your office.")
+        narrative.append("Your approval rating is plummeting! Protests are growing outside your office.")
     
     return " ".join(narrative)
 
@@ -261,7 +261,7 @@ if not st.session_state.game_started:
     # Dramatic opening banner
     st.markdown("""
     <div class="opening-banner">
-        <h1>🏛️ WELCOME TO POLITICS</h1>
+        <h1>WELCOME TO POLITICS</h1>
         <p>
             You have just been appointed as the <strong>Minister of Finance</strong>.<br>
             The economy is in your hands. The people are watching.<br>
@@ -273,7 +273,7 @@ if not st.session_state.game_started:
     st.markdown("---")
     
     # Character creation
-    st.subheader("📋 Create Your Political Persona")
+    st.subheader("Create Your Political Persona")
     
     col1, col2 = st.columns(2)
     
@@ -306,7 +306,7 @@ if not st.session_state.game_started:
     st.markdown("---")
     
     # Mission briefing
-    st.subheader("📜 Your Mission")
+    st.subheader("Your Mission")
     st.markdown("""
     - **Serve 4 years** as Minister of Finance
     - **Keep approval rating above 20%** (or you'll be overthrown!)
@@ -323,7 +323,7 @@ if not st.session_state.game_started:
     # Start button
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        if st.button("🎯 START YOUR TERM", use_container_width=True, type="primary"):
+        if st.button("START YOUR TERM", use_container_width=True, type="primary"):
             if st.session_state.player_name == "":
                 st.warning("Please enter your name first!")
             else:
@@ -403,10 +403,10 @@ st.markdown("---")
 col_status1, col_status2, col_status3, col_status4 = st.columns(4)
 
 with col_status1:
-    st.metric("👤 Minister", st.session_state.player_name)
+    st.metric("Minister", st.session_state.player_name)
 
 with col_status2:
-    st.metric("📅 Year in Office", f"{st.session_state.year}/4")
+    st.metric("Year in Office", f"{st.session_state.year}/4")
 
 with col_status3:
     if st.session_state.approval >= 60:
@@ -452,7 +452,7 @@ if scenario["narrative"]:
 st.markdown("---")
 
 # ---- CHALLENGE / TARGETS ----
-st.subheader("🎯 Challenge Mode")
+st.subheader("Challenge Mode")
 
 # If scenario has predefined targets, use them
 if scenario["targets"] is not None:
@@ -488,7 +488,7 @@ st.markdown("---")
 
 # ---- LESSON MODE ----
 if st.session_state.lesson_mode:
-    st.subheader("📚 Lesson Mode")
+    st.subheader("Lesson Mode")
     st.markdown("""
     **Goal:** Learn how to control inflation without causing a recession.
     
@@ -707,14 +707,14 @@ if st.session_state["results"] is not None:
     # Display random event if it occurred
     if st.session_state.event:
         st.markdown("---")
-        st.subheader(f"⚡ Random Event: {st.session_state.event['name']}")
+        st.subheader(f"Random Event: {st.session_state.event['name']}")
         st.write(st.session_state.event["description"])
         st.write("This event has affected your economic indicators.")
 
     # Display narrative
     if st.session_state.narrative:
         st.markdown("---")
-        st.subheader("📜 News Report")
+        st.subheader("News Report")
         st.write(st.session_state.narrative)
 
     # Scoring
@@ -770,17 +770,17 @@ else:
 # ---- GAME OVER SCREEN ----
 if st.session_state.game_over:
     st.markdown("---")
-    st.subheader("🏆 Final Results")
+    st.subheader("Final Results")
     
     if st.session_state.approval < 20:
-        st.error(f"💥 UPRISING! {st.session_state.player_name}, you were overthrown by angry citizens!")
+        st.error(f"UPRISING! {st.session_state.player_name}, you were overthrown by angry citizens!")
         st.markdown("""
         *The mob storms the Ministry of Finance building...*
         *Your economic policies have failed the people.*
         *History will remember you as a cautionary tale.*
         """)
     else:
-        st.success(f"🎉 Congratulations, {st.session_state.player_name}! You completed your 4-year term!")
+        st.success(f"Congratulations, {st.session_state.player_name}! You completed your 4-year term!")
         st.balloons()
         st.markdown("""
         *You step down peacefully, handing over the reins to your successor.*
@@ -794,7 +794,7 @@ if st.session_state.game_over:
     final_score = st.session_state.approval
     
     if final_score >= 70:
-        st.success("🌟 Outstanding leadership! You'll go down in history as a great leader.")
+        st.success("Outstanding leadership! You'll go down in history as a great leader.")
     elif final_score >= 50:
         st.info("Good job! You maintained reasonable stability.")
     else:
@@ -807,7 +807,7 @@ if st.session_state.game_over:
         st.line_chart(history_df[["approval"]])
     
     # Reset button
-    if st.button("🔄 Play Again"):
+    if st.button("Play Again"):
         # Reset all game state
         st.session_state.approval = 50.0
         st.session_state.year = 1
