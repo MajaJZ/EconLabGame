@@ -315,7 +315,7 @@ if not st.session_state.game_started:
     - **Make tough choices** with interest rates, taxes, and spending
     
     *Every year, you'll make policy decisions and see the results.*
-    *The people will judge you. Will you be a hero or a tyrant?*
+    *The people will judge you.*
     """)
     
     st.markdown("---")
@@ -344,7 +344,7 @@ if not st.session_state.game_started:
                 st.session_state.game_started = True
                 st.success(f"Good luck, {st.session_state.player_name}! The nation awaits.")
                 st.balloons()
-                st.experimental_rerun()
+                st.rerun()
     
     # Stop here - don't show the rest of the app
     st.stop()
@@ -393,9 +393,14 @@ with st.sidebar:
         coeffs["wage_spending"] = st.slider("Spending effect on wages", -1.0, 1.0, coeffs["wage_spending"], 0.05)
         coeffs["wage_interest"] = st.slider("Interest effect on wages", -1.0, 1.0, coeffs["wage_interest"], 0.05)
 
+        st.session_state.game_started = True
+        st.success(f"Good luck, {st.session_state.player_name}! The nation awaits.")
+        st.balloons()
+        st.rerun()
+
         if st.button("Reset coefficients to default"):
             st.session_state.coeffs = DEFAULT_COEFFICIENTS.copy()
-            st.experimental_rerun()
+            st.rerun()
 
 # ---- MAIN AREA ----
 # Game status display
@@ -768,48 +773,134 @@ else:
     if not st.session_state.game_over:
         st.info("Adjust the policy sliders and click **RUN EXPERIMENT** to see the effects.")
 
-# ---- GAME OVER SCREEN ----
+# ---- CLOSING PAGE ----
 if st.session_state.game_over:
     st.markdown("---")
-    st.subheader("Final Results")
     
+    # Check if this is a game over or successful completion
     if st.session_state.approval < 20:
-        st.error(f"UPRISING! {st.session_state.player_name}, you were overthrown by angry citizens!")
+        # Overthrown ending
         st.markdown("""
-        *The mob storms the Ministry of Finance building...*
-        *Your economic policies have failed the people.*
-        *History will remember you as a cautionary tale.*
-        """)
+        <div style="
+            background: linear-gradient(135deg, #2d0000 0%, #4a0000 50%, #1a0000 100%);
+            border-radius: 20px;
+            padding: 50px 30px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        ">
+            <div style="font-size: 60px; margin-bottom: 20px;">💥</div>
+            <h1 style="
+                color: #ff4444;
+                font-size: 32px;
+                font-weight: bold;
+                margin: 0 0 15px 0;
+                letter-spacing: 2px;
+            ">TERM ENDED — PUBLIC UPRISING</h1>
+            <div style="
+                width: 100px;
+                height: 2px;
+                background: #ff4444;
+                margin: 20px auto;
+            "></div>
+            <p style="
+                color: #cccccc;
+                font-size: 16px;
+                line-height: 1.6;
+                margin: 0;
+            ">
+                <strong style="color: #ff6666;">{name}</strong>, your economic policies have failed the nation.<br>
+                Public trust has collapsed. Protests have overwhelmed the capital.<br>
+                <em>Your term ends in disgrace. History will remember this failure.</em>
+            </p>
+        </div>
+        """.format(name=st.session_state.player_name), unsafe_allow_html=True)
+        
+        st.error(f"**Final Approval Rating: {st.session_state.approval:.0f}%** — The people have spoken.")
+        
     else:
-        st.success(f"Congratulations, {st.session_state.player_name}! You completed your 4-year term!")
-        st.balloons()
+        # Successful completion
         st.markdown("""
-        *You step down peacefully, handing over the reins to your successor.*
-        *The economy is stable, and the people are content.*
-        *Your legacy as a skilled financial leader is secure.*
-        """)
+        <div style="
+            background: linear-gradient(135deg, #0a1a0a 0%, #1a3a1a 50%, #0a2a0a 100%);
+            border-radius: 20px;
+            padding: 50px 30px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 60px; margin-bottom: 20px;">🎖️</div>
+            <h1 style="
+                color: #c9a84c;
+                font-size: 32px;
+                font-weight: bold;
+                margin: 0 0 15px 0;
+                letter-spacing: 2px;
+            ">TERM COMPLETED</h1>
+            <div style="
+                width: 100px;
+                height: 2px;
+                background: #c9a84c;
+                margin: 20px auto;
+            "></div>
+            <p style="
+                color: #e0e0e0;
+                font-size: 16px;
+                line-height: 1.6;
+                margin: 0;
+            ">
+                <strong style="color: #c9a84c;">{name}</strong>, you have served your nation with distinction.<br>
+                The economy is stable. The people are secure.<br>
+                <em>Your legacy as a capable leader is assured.</em>
+            </p>
+        </div>
+        """.format(name=st.session_state.player_name), unsafe_allow_html=True)
+        
+        st.success(f"**Final Approval Rating: {st.session_state.approval:.0f}%** — The nation thanks you.")
     
-    st.write(f"**Final Approval Rating:** {st.session_state.approval:.0f}%")
+    st.markdown("---")
     
-    # Calculate final score
-    final_score = st.session_state.approval
+    # Performance summary
+    st.markdown("### 📊 Performance Summary")
     
-    if final_score >= 70:
-        st.success("Outstanding leadership! You'll go down in history as a great leader.")
-    elif final_score >= 50:
-        st.info("Good job! You maintained reasonable stability.")
-    else:
-        st.warning("Your time in office was challenging. The next leader has big shoes to fill.")
+    col1, col2, col3 = st.columns(3)
     
-    # Show history
+    with col1:
+        st.metric("Final Approval", f"{st.session_state.approval:.0f}%")
+    
+    with col2:
+        if st.session_state.history:
+            avg_gdp = sum(h["gdp_growth"] for h in st.session_state.history) / len(st.session_state.history)
+            st.metric("Average GDP Growth", f"{avg_gdp:.1f}%")
+    
+    with col3:
+        if st.session_state.history:
+            avg_unemployment = sum(h["unemployment"] for h in st.session_state.history) / len(st.session_state.history)
+            st.metric("Average Unemployment", f"{avg_unemployment:.1f}%")
+    
+    # Show approval trend
     if st.session_state.history:
-        st.subheader("Your Track Record")
+        st.markdown("### 📈 Approval Rating Trend")
         history_df = pd.DataFrame(st.session_state.history)
         st.line_chart(history_df[["approval"]])
     
-    # Reset button
-    if st.button("Play Again"):
-        # Reset all game state
-        st.session_state.approval = 50.0
-        st.session_state.year = 1
-        st.session_state.game_over = False
+    st.markdown("---")
+    
+    # Play again button - centered
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("🔄 START NEW TERM", use_container_width=True):
+            # Reset all game state
+            st.session_state.approval = 50.0
+            st.session_state.year = 1
+            st.session_state.game_over = False
+            st.session_state.history = []
+            st.session_state.event = None
+            st.session_state.results = None
+            st.session_state.narrative = None
+            st.session_state.approval_change = None
+            st.session_state.game_started = False
+            st.session_state.player_name = ""
+            st.session_state.player_style = "Centrist"
+            st.session_state.spending_bonus = 0
+            st.rerun()
