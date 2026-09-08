@@ -552,6 +552,7 @@ else:
 # ---- RUN EXPERIMENT BUTTON ----
 if st.session_state.game_over:
     st.warning("Your term is over! See the results below.")
+    run_button = False
 else:
     run_button = st.button("RUN EXPERIMENT", use_container_width=True)
 
