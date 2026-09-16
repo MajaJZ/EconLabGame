@@ -431,26 +431,157 @@ else:
     if not st.session_state.game_over:
         st.info("Adjust the sliders and click RUN EXPERIMENT.")
 
-# ---------- CLOSING ----------
+# ---------- CLOSING PAGE (WIN / LOSE) ----------
 if st.session_state.game_over:
     st.markdown("---")
+
     success = st.session_state.approval >= 20
-    title = "TERM COMPLETED" if success else "TERM ENDED — PUBLIC UPRISING"
-    text = ("You served your nation with distinction. Your legacy is assured."
-            if success else
-            "Your policies failed the nation. History will remember this.")
-    color = "#5cd65c" if success else "#ff5252"
-    st.markdown(f'<div class="banner"><h1 style="color:{color}">{title}</h1><p>{text}</p></div>',
-                unsafe_allow_html=True)
-    st.write(f"**Final Approval: {st.session_state.approval:.0f}%**")
+    years_served = len(st.session_state.history)
+
+    # Determine ending type
+    if success:
+        ending_title = "TERM COMPLETED"
+        ending_subtitle = "You served your full 4 years in office."
+        ending_text = ("The nation thanks you for your service. Your economic stewardship "
+                       "will be remembered as a period of stability and progress.")
+        banner_bg = "linear-gradient(135deg, #0a3a0a 0%, #1a5a1a 50%, #0a3a0a 100%)"
+        accent = "#5cd65c"
+        outcome_label = "VICTORY"
+    else:
+        ending_title = "PUBLIC UPRISING"
+        ending_subtitle = f"Your term ended after {years_served} year(s)."
+        ending_text = ("The people have lost faith in your leadership. Mass protests forced "
+                       "your resignation. History will remember this as a cautionary tale.")
+        banner_bg = "linear-gradient(135deg, #3a0a0a 0%, #5a1a1a 50%, #3a0a0a 100%)"
+        accent = "#ff5252"
+        outcome_label = "DEFEAT"
+
+    # Big hero banner
+    st.markdown(f"""
+    <div style="
+        background: {banner_bg};
+        border-radius: 20px;
+        padding: 60px 40px;
+        margin: 30px 0;
+        text-align: center;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    ">
+        <div style="
+            font-size: 14px;
+            letter-spacing: 6px;
+            color: {accent};
+            margin-bottom: 15px;
+            font-weight: bold;
+        ">{outcome_label}</div>
+        <h1 style="
+            color: {accent};
+            font-size: 48px;
+            font-weight: bold;
+            margin: 0 0 20px 0;
+            letter-spacing: 3px;
+        ">{ending_title}</h1>
+        <div style="width: 120px; height: 3px; background: {accent}; margin: 20px auto;"></div>
+        <p style="
+            color: #f0f0f0;
+            font-size: 20px;
+            margin: 0 0 15px 0;
+            font-weight: 500;
+        ">{ending_subtitle}</p>
+        <p style="
+            color: #d0d0d0;
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        ">{ending_text}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Final score card
+    st.markdown("### Final Report Card")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Final Approval", f"{st.session_state.approval:.0f}%")
+    with col2:
+        st.metric("Years in Office", f"{years_served}/4")
+    with col3:
+        if st.session_state.history:
+            avg_gdp = sum(h["gdp_growth"] for h in st.session_state.history) / len(st.session_state.history)
+            st.metric("Avg GDP Growth", f"{avg_gdp:.1f}%")
+
+    # Performance summary
     if st.session_state.history:
-        st.line_chart(pd.DataFrame(st.session_state.history)[["approval"]])
-    c1, c2, c3 = st.columns([1, 2, 1])
-    with c2:
-        if st.button("START NEW TERM", use_container_width=True):
+        hist = pd.DataFrame(st.session_state.history)
+        col1, col2 = st.columns(2)
+        with col1:
+            avg_inf = hist["inflation"].mean()
+            avg_une = hist["unemployment"].mean()
+            st.markdown(f"**Average inflation:** {avg_inf:.1f}%")
+            st.markdown(f"**Average unemployment:** {avg_une:.1f}%")
+        with col2:
+            avg_wage = hist["real_wage_growth"].mean()
+            st.markdown(f"**Average real wage growth:** {avg_wage:.1f}%")
+            peak_app = hist["approval"].max()
+            st.markdown(f"**Peak approval rating:** {peak_app:.0f}%")
+
+    # Rating headline
+    st.markdown("---")
+    st.markdown("### Historian's Verdict")
+
+    final = st.session_state.approval
+    if final >= 80:
+        st.success("An outstanding leader. Your name will be taught in schools as a model of "
+                   "economic stewardship.")
+    elif final >= 65:
+        st.success("A successful minister. The economy thrived under your watch.")
+    elif final >= 50:
+        st.info("A competent administrator. You left the country in decent shape.")
+    elif final >= 35:
+        st.warning("A controversial figure. Some praise you, others do not.")
+    elif final >= 20:
+        st.warning("A disappointing tenure. You narrowly avoided political disaster.")
+    else:
+        st.error("A failed ministry. Your policies were rejected by the people.")
+
+    # Approval over time
+    if st.session_state.history:
+        st.markdown("---")
+        st.markdown("### Approval Rating Over Time")
+        st.line_chart(pd.DataFrame(st.session_state.history)[["approval"]], height=300)
+
+    # Try Again button — the big one
+    st.markdown("---")
+    st.markdown("### Ready to try again?")
+    st.caption("Your session will be reset and you'll return to the appointment screen.")
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("TRY AGAIN", use_container_width=True, type="primary"):
             for k in list(st.session_state.keys()):
                 del st.session_state[k]
             st.rerun()
+
+    # Second option: same settings, new term
+    st.markdown("")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("NEW TERM, SAME SETTINGS", use_container_width=True):
+            # Reset game state but keep name, style, difficulty
+            keep = {
+                "player_name": st.session_state.player_name,
+                "player_style": st.session_state.player_style,
+                "difficulty": st.session_state.difficulty,
+                "coeffs": st.session_state.coeffs,
+            }
+            for k in list(st.session_state.keys()):
+                del st.session_state[k]
+            for k, v in keep.items():
+                st.session_state[k] = v
+            st.rerun()
+
+    # Stop here so nothing else shows on the closing page
+    st.stop()
 
 # ---------- TEACHER / STUDENT MATERIALS ----------
 st.markdown("---")
