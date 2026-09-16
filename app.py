@@ -285,25 +285,47 @@ if scenario["story"]:
 
 # ---------- CHALLENGE ----------
 st.markdown("---")
-st.subheader("Challenge")
+st.subheader("Current Challenge")
+
+# Use scenario targets if they exist, otherwise auto-generate
 if scenario["targets"] is not None:
     st.session_state.challenge = scenario["targets"]
-    ch = st.session_state.challenge
-    st.write(f"GDP ≥ {ch['gdp_growth']}% · Inflation ≤ {ch['inflation']}% · Unemployment ≤ {ch['unemployment']}%")
-else:
-    if st.button("Generate Challenge"):
+elif st.session_state.challenge is None:
+    tol = lv["tol"]
+    st.session_state.challenge = {
+        "gdp_growth": round(baseline["gdp_growth"] + 1.0 / tol, 1),
+        "inflation": round(baseline["inflation"] + 0.5 * tol, 1),
+        "unemployment": round(max(1.0, baseline["unemployment"] - 1.0 * tol), 1),
+    }
+
+ch = st.session_state.challenge
+st.write(f"GDP ≥ {ch['gdp_growth']}% · Inflation ≤ {ch['inflation']}% · Unemployment ≤ {ch['unemployment']}%")
+
+# NEW TERM button — regenerates challenge and restarts the game
+col1, col2, col3 = st.columns([1, 1, 2])
+with col1:
+    if st.button("NEW TERM", help="Start a fresh term with a new challenge."):
         tol = lv["tol"]
-        st.session_state.challenge = {
-            "gdp_growth": round(baseline["gdp_growth"] + 1.0 / tol, 1),
-            "inflation": round(baseline["inflation"] + 0.5 * tol, 1),
-            "unemployment": round(max(1.0, baseline["unemployment"] - 1.0 * tol), 1),
-        }
+        if scenario["targets"] is not None:
+            st.session_state.challenge = scenario["targets"]
+        else:
+            st.session_state.challenge = {
+                "gdp_growth": round(baseline["gdp_growth"] + 1.0 / tol, 1),
+                "inflation": round(baseline["inflation"] + 0.5 * tol, 1),
+                "unemployment": round(max(1.0, baseline["unemployment"] - 1.0 * tol), 1),
+            }
+        st.session_state.year = 1
+        st.session_state.approval = lv["start"] + (
+            {"Centrist": 0, "Social Democrat": 5, "Conservative": -5,
+             "Libertarian": 0, "Green": 10}[st.session_state.player_style]
+        )
+        st.session_state.game_over = False
+        st.session_state.history = []
+        st.session_state.results = None
+        st.session_state.event = None
+        st.session_state.narrative = None
+        st.session_state.approval_change = 0.0
         st.rerun()
-    if st.session_state.challenge:
-        ch = st.session_state.challenge
-        st.write(f"GDP ≥ {ch['gdp_growth']}% · Inflation ≤ {ch['inflation']}% · Unemployment ≤ {ch['unemployment']}%")
-    else:
-        st.caption("No challenge yet.")
 
 # ---------- SLIDERS ----------
 st.markdown("---")
